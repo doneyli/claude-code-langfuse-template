@@ -401,6 +401,20 @@ metadata={
 }
 ```
 
+## Disclaimer
+
+This is a **personal project** and is not affiliated with, sponsored by, or endorsed by ClickHouse, Inc., Anthropic, or any other organization.
+
+This software is provided "as-is" without warranty of any kind. Use at your own risk. The author makes no guarantees about reliability, security, or fitness for any particular purpose.
+
+**No support commitment.** While issues and PRs are welcome, there is no guarantee of response time or resolution. This is a side project maintained in spare time.
+
+By using this template, you accept full responsibility for:
+- Securing your deployment
+- Backing up your data
+- Reviewing the code for your specific security requirements
+- Any costs, damages, or issues arising from its use
+
 ## Contributing
 
 Contributions are welcome! Please:
@@ -419,15 +433,7 @@ MIT License - see LICENSE file for details.
 
 - [Langfuse](https://langfuse.com/) - Open-source LLM observability
 - [Anthropic Claude](https://claude.ai/) - AI assistant platform
-- Template created for the Claude Code community
-
-## Support
-
-- **Issues**: Open a GitHub issue
-- **Discussions**: Use GitHub Discussions for questions
-- **Langfuse Docs**: https://langfuse.com/docs
-- **Claude Code Docs**: https://docs.anthropic.com/claude-code
 
 ---
 
-**Happy tracing!** If you find this useful, consider starring the repository and sharing with others.
+**Happy tracing!** If you find this useful, consider starring the repository.
