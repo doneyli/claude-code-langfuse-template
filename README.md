@@ -18,8 +18,13 @@ Follow these steps to get Langfuse observability running in under 5 minutes:
 
 1. **Clone the repository**
    ```bash
-   git clone <your-fork-url>
+   git clone https://github.com/doneyli/claude-code-langfuse-template.git
    cd claude-code-langfuse-template
+   ```
+
+   **Optional: Verify prerequisites**
+   ```bash
+   ./scripts/validate-setup.sh
    ```
 
 2. **Generate credentials**
@@ -46,6 +51,11 @@ Follow these steps to get Langfuse observability running in under 5 minutes:
    - Log in with the credentials from your `.env` file
    - Start a Claude Code conversation
    - Watch traces appear in Langfuse in real-time
+
+   **Optional: Run full validation**
+   ```bash
+   ./scripts/validate-setup.sh --post
+   ```
 
 ## What Gets Captured
 
