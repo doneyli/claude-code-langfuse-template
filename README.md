@@ -71,6 +71,27 @@ Follow these steps to get Langfuse observability running in under 5 minutes:
 | Timing | Duration of each turn and tool call |
 | Project context | Project name extracted from workspace path |
 
+## Analyze Your Traces
+
+Once you have traces flowing, run the built-in analyzer to find patterns in how Claude Code uses tools, how session length affects productivity, and whether your prompting habits pay off.
+
+**Quick start (self-hosted, ClickHouse direct):**
+```bash
+./scripts/analyze-traces.sh
+```
+
+**SDK / REST API (works with Cloud too):**
+```bash
+pip install langfuse
+export LANGFUSE_PUBLIC_KEY=$(docker exec langfuse-web printenv LANGFUSE_INIT_PROJECT_PUBLIC_KEY)
+export LANGFUSE_SECRET_KEY=$(docker exec langfuse-web printenv LANGFUSE_INIT_PROJECT_SECRET_KEY)
+python3 scripts/analyze-traces-sdk.py
+```
+
+Both scripts produce five analyses: tool usage distribution, session turn distribution, productivity by session length, and read-before-edit patterns. Add `--json` for machine-readable output or `--tag <project>` to filter by project.
+
+See [docs/trace-analysis.md](docs/trace-analysis.md) for the full methodology, ClickHouse schema reference, and a query cookbook for writing your own analytics.
+
 ## How It Works
 
 The Langfuse hook runs as a Claude Code **Stop hook** — it executes after each assistant response completes.
