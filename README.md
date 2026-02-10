@@ -1,22 +1,50 @@
 # Claude Code + Langfuse: Session Observability Template
 
-Self-hosted Langfuse for capturing every Claude Code conversation — prompts, responses, tool calls, and session grouping.
+Capture every Claude Code conversation — prompts, responses, tool calls, and session grouping — using Langfuse Cloud or a self-hosted instance.
 
-This template provides a complete, production-ready setup for observing your Claude Code sessions using Langfuse. Everything runs locally in Docker, with automatic session tracking and incremental state management.
+This template provides a complete, production-ready setup for observing your Claude Code sessions using Langfuse. Choose between **Langfuse Cloud** (zero infrastructure) or **self-hosted** (everything runs locally in Docker), with automatic session tracking and incremental state management.
 
 **Read the full story:** [I Built My Own Observability for Claude Code](https://doneyli.substack.com/p/i-built-my-own-observability-for) — why I built this, how it works, and screenshots of the setup in action.
 
-## Prerequisites
+## Choose Your Setup
 
-- Docker and Docker Compose
-- Python 3.11 or higher
-- Claude Code CLI (desktop or terminal)
-- 4-6GB available RAM
-- 2-5GB available disk space
+| | Langfuse Cloud | Self-Hosted |
+|---|---|---|
+| **Infrastructure** | None (fully managed) | Docker on your machine |
+| **Prerequisites** | Python 3.11+ | Python 3.11+, Docker, 4-6GB RAM, 2-5GB disk |
+| **Setup time** | ~2 minutes | ~5 minutes |
+| **Data location** | Langfuse Cloud (EU or US) | Your machine only |
+| **Cost** | Free tier available | Free (self-hosted) |
 
-## Quick Start
+## Quick Start — Option A: Langfuse Cloud
 
-Follow these steps to get Langfuse observability running in under 5 minutes:
+Use this if you have (or want to create) a [Langfuse Cloud](https://cloud.langfuse.com) account. No Docker required.
+
+**Prerequisites:** Python 3.11+, Claude Code CLI, a Langfuse Cloud account with API keys.
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/doneyli/claude-code-langfuse-template.git
+   cd claude-code-langfuse-template
+   ```
+
+2. **Install the hook (cloud mode)**
+   ```bash
+   ./scripts/install-hook.sh --cloud
+   ```
+   You'll be prompted for your public key, secret key, and region (EU/US/custom).
+
+3. **Verify the setup**
+   ```bash
+   ./scripts/validate-setup.sh --cloud --post
+   ```
+   Then start a Claude Code conversation — traces will appear in your Langfuse Cloud dashboard.
+
+## Quick Start — Option B: Self-Hosted
+
+Use this to run everything locally in Docker. No external accounts needed.
+
+**Prerequisites:** Docker and Docker Compose, Python 3.11+, Claude Code CLI, 4-6GB RAM, 2-5GB disk.
 
 1. **Clone the repository**
    ```bash
@@ -101,10 +129,10 @@ The Langfuse hook runs as a Claude Code **Stop hook** — it executes after each
        │
        │ HTTP POST
        ▼
-┌──────────────────┐
-│ Langfuse API     │
-│ (localhost:3050) │
-└──────┬───────────┘
+┌──────────────────────────────┐
+│ Langfuse API                 │
+│ (localhost:3050 or Cloud)    │
+└──────┬───────────────────────┘
        │
        ▼
 ┌──────────────────────────┐
@@ -140,6 +168,10 @@ To opt out for a specific project:
    ```
 
 See `settings-examples/project-opt-out.json` for a complete example.
+
+### Cloud Settings Example
+
+If you're using Langfuse Cloud and want to see or tweak the generated configuration, see `settings-examples/cloud-settings.json`.
 
 ### Environment Variables
 
@@ -302,6 +334,25 @@ lsof -i :3050
 # Either stop that service, or change the Langfuse port in docker-compose.yml
 ```
 
+### Cloud: API key rejected
+
+**Symptom:** Traces don't appear in Langfuse Cloud, hook logs show 401/403 errors
+
+**Check:**
+1. Keys must start with `pk-lf-` (public) and `sk-lf-` (secret)
+2. Verify keys match the correct project in your Langfuse Cloud dashboard
+3. Ensure `LANGFUSE_HOST` matches your region (`https://cloud.langfuse.com` for EU, `https://us.cloud.langfuse.com` for US)
+4. Re-run: `./scripts/install-hook.sh --cloud`
+
+### Cloud: Cannot reach Langfuse Cloud
+
+**Symptom:** `validate-setup.sh --cloud --post` warns that the API is not reachable
+
+**Check:**
+1. Verify internet connectivity: `curl https://cloud.langfuse.com/api/public/health`
+2. Check for proxy/firewall blocking outbound HTTPS
+3. If using a custom URL, verify it's correct
+
 ### Traces not appearing
 
 **Symptom:** Langfuse UI shows no traces after conversations
@@ -310,8 +361,9 @@ lsof -i :3050
 1. Is `TRACE_TO_LANGFUSE=true` in `~/.claude/settings.json`?
 2. Are the API keys correct?
 3. Check hook logs: `tail -f ~/.claude/state/langfuse_hook.log`
-4. Verify Docker services are running: `docker compose ps`
-5. Test Langfuse API: `curl http://localhost:3050/api/public/health`
+4. **Self-hosted:** Verify Docker services are running: `docker compose ps`
+5. **Self-hosted:** Test API: `curl http://localhost:3050/api/public/health`
+6. **Cloud:** Test API: `curl https://cloud.langfuse.com/api/public/health`
 
 ### Hook runs slowly
 
@@ -372,10 +424,16 @@ docker compose up -d
 
 ### Security
 
+**Self-hosted:**
 - All services run on `localhost` (not exposed to network)
 - Credentials are generated randomly on first setup
 - `.env` file is git-ignored (never commit credentials)
-- No telemetry is sent to external services (Langfuse self-hosted)
+- No telemetry is sent to external services
+
+**Cloud:**
+- Traces are sent to Langfuse Cloud (EU or US region)
+- API keys are stored in `~/.claude/settings.json` (not committed to git)
+- Review [Langfuse's security & privacy documentation](https://langfuse.com/security) for data handling details
 
 ## Customization Ideas
 
