@@ -7,30 +7,107 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Parse flags
+CLOUD_MODE=false
+if [[ "${1:-}" == "--cloud" ]]; then
+    CLOUD_MODE=true
+fi
+
 echo "====================================="
 echo "Claude Code Langfuse Hook Installer"
+if [ "$CLOUD_MODE" = true ]; then
+    echo "  (Langfuse Cloud mode)"
+fi
 echo "====================================="
 echo ""
 
-# Check if .env exists
-if [ ! -f .env ]; then
-    echo -e "${RED}Error: .env file not found${NC}"
-    echo "Please run ./scripts/generate-env.sh first"
-    exit 1
-fi
+if [ "$CLOUD_MODE" = true ]; then
+    # --- Cloud mode: prompt for credentials interactively ---
+    echo "Setting up Langfuse Cloud integration."
+    echo ""
 
-# Extract credentials from .env (safer than source - avoids code injection)
-get_env_value() {
-    grep "^$1=" .env 2>/dev/null | cut -d= -f2- | head -1
-}
+    # Prompt for public key
+    read -rp "Enter your Langfuse public key (pk-lf-...): " LANGFUSE_PUBLIC_KEY
+    if [[ -z "$LANGFUSE_PUBLIC_KEY" ]]; then
+        echo -e "${RED}Error: Public key cannot be empty${NC}"
+        exit 1
+    fi
+    if [[ ! "$LANGFUSE_PUBLIC_KEY" =~ ^pk-lf- ]]; then
+        echo -e "${RED}Error: Public key must start with 'pk-lf-'${NC}"
+        exit 1
+    fi
 
-LANGFUSE_INIT_PROJECT_PUBLIC_KEY=$(get_env_value "LANGFUSE_INIT_PROJECT_PUBLIC_KEY")
-LANGFUSE_INIT_PROJECT_SECRET_KEY=$(get_env_value "LANGFUSE_INIT_PROJECT_SECRET_KEY")
+    # Prompt for secret key
+    read -rp "Enter your Langfuse secret key (sk-lf-...): " LANGFUSE_SECRET_KEY
+    if [[ -z "$LANGFUSE_SECRET_KEY" ]]; then
+        echo -e "${RED}Error: Secret key cannot be empty${NC}"
+        exit 1
+    fi
+    if [[ ! "$LANGFUSE_SECRET_KEY" =~ ^sk-lf- ]]; then
+        echo -e "${RED}Error: Secret key must start with 'sk-lf-'${NC}"
+        exit 1
+    fi
 
-if [ -z "$LANGFUSE_INIT_PROJECT_PUBLIC_KEY" ] || [ -z "$LANGFUSE_INIT_PROJECT_SECRET_KEY" ]; then
-    echo -e "${RED}Error: Could not read API keys from .env${NC}"
-    echo "Ensure LANGFUSE_INIT_PROJECT_PUBLIC_KEY and LANGFUSE_INIT_PROJECT_SECRET_KEY are set"
-    exit 1
+    # Prompt for region
+    echo ""
+    echo "Choose your Langfuse region:"
+    echo "  1) EU  (cloud.langfuse.com)"
+    echo "  2) US  (us.cloud.langfuse.com)"
+    echo "  3) Custom URL"
+    read -rp "Selection [1]: " REGION_CHOICE
+    REGION_CHOICE="${REGION_CHOICE:-1}"
+
+    case "$REGION_CHOICE" in
+        1)
+            LANGFUSE_HOST="https://cloud.langfuse.com"
+            ;;
+        2)
+            LANGFUSE_HOST="https://us.cloud.langfuse.com"
+            ;;
+        3)
+            read -rp "Enter your Langfuse URL (e.g. https://my-langfuse.example.com): " LANGFUSE_HOST
+            if [[ -z "$LANGFUSE_HOST" ]]; then
+                echo -e "${RED}Error: URL cannot be empty${NC}"
+                exit 1
+            fi
+            ;;
+        *)
+            echo -e "${RED}Error: Invalid selection${NC}"
+            exit 1
+            ;;
+    esac
+
+    echo ""
+    echo -e "${GREEN}✓ Cloud credentials configured${NC}"
+    echo "  Host: $LANGFUSE_HOST"
+    echo "  Public Key: $LANGFUSE_PUBLIC_KEY"
+    echo ""
+
+else
+    # --- Self-hosted mode: read from .env ---
+    # Check if .env exists
+    if [ ! -f .env ]; then
+        echo -e "${RED}Error: .env file not found${NC}"
+        echo "Please run ./scripts/generate-env.sh first"
+        echo ""
+        echo "Or use --cloud for Langfuse Cloud: ./scripts/install-hook.sh --cloud"
+        exit 1
+    fi
+
+    # Extract credentials from .env (safer than source - avoids code injection)
+    get_env_value() {
+        grep "^$1=" .env 2>/dev/null | cut -d= -f2- | head -1
+    }
+
+    LANGFUSE_PUBLIC_KEY=$(get_env_value "LANGFUSE_INIT_PROJECT_PUBLIC_KEY")
+    LANGFUSE_SECRET_KEY=$(get_env_value "LANGFUSE_INIT_PROJECT_SECRET_KEY")
+    LANGFUSE_HOST="http://localhost:3050"
+
+    if [ -z "$LANGFUSE_PUBLIC_KEY" ] || [ -z "$LANGFUSE_SECRET_KEY" ]; then
+        echo -e "${RED}Error: Could not read API keys from .env${NC}"
+        echo "Ensure LANGFUSE_INIT_PROJECT_PUBLIC_KEY and LANGFUSE_INIT_PROJECT_SECRET_KEY are set"
+        exit 1
+    fi
 fi
 
 # Find Python 3.11+
@@ -128,9 +205,9 @@ if "hooks" not in settings:
 
 # Add environment variables
 settings["env"]["TRACE_TO_LANGFUSE"] = "true"
-settings["env"]["LANGFUSE_PUBLIC_KEY"] = "$LANGFUSE_INIT_PROJECT_PUBLIC_KEY"
-settings["env"]["LANGFUSE_SECRET_KEY"] = "$LANGFUSE_INIT_PROJECT_SECRET_KEY"
-settings["env"]["LANGFUSE_HOST"] = "http://localhost:3050"
+settings["env"]["LANGFUSE_PUBLIC_KEY"] = "$LANGFUSE_PUBLIC_KEY"
+settings["env"]["LANGFUSE_SECRET_KEY"] = "$LANGFUSE_SECRET_KEY"
+settings["env"]["LANGFUSE_HOST"] = "$LANGFUSE_HOST"
 
 # Add Stop hook if not already present
 if "Stop" not in settings["hooks"]:
@@ -179,15 +256,29 @@ echo ""
 echo "Configuration:"
 echo "  Hook: $HOOK_DEST"
 echo "  Settings: $SETTINGS_FILE"
-echo "  Host: http://localhost:3050"
-echo "  Public Key: $LANGFUSE_INIT_PROJECT_PUBLIC_KEY"
+echo "  Host: $LANGFUSE_HOST"
+echo "  Public Key: $LANGFUSE_PUBLIC_KEY"
 echo ""
-echo "Verification steps:"
-echo "  1. Ensure Docker is running"
-echo "  2. Start Langfuse: docker compose up -d"
-echo "  3. Wait 30-60 seconds for services to initialize"
-echo "  4. Start a Claude Code conversation"
-echo "  5. Check traces at http://localhost:3050"
+
+if [ "$CLOUD_MODE" = true ]; then
+    echo "Verification steps:"
+    echo "  1. Start a Claude Code conversation"
+    echo "  2. Check traces at $LANGFUSE_HOST"
+    echo ""
+    echo "Optional: Run validation"
+    echo "  ./scripts/validate-setup.sh --cloud --post"
+else
+    echo "Verification steps:"
+    echo "  1. Ensure Docker is running"
+    echo "  2. Start Langfuse: docker compose up -d"
+    echo "  3. Wait 30-60 seconds for services to initialize"
+    echo "  4. Start a Claude Code conversation"
+    echo "  5. Check traces at http://localhost:3050"
+    echo ""
+    echo "Optional: Run validation"
+    echo "  ./scripts/validate-setup.sh --post"
+fi
+
 echo ""
 echo "Debug commands:"
 echo "  View hook logs: tail -f ~/.claude/state/langfuse_hook.log"
