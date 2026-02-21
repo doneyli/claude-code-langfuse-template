@@ -56,7 +56,7 @@ echo ""
 
 read -p "Email address: " USER_EMAIL
 if [ -z "$USER_EMAIL" ]; then
-    USER_EMAIL="admin@localhost"
+    USER_EMAIL="admin@localhost.local"
     echo -e "${YELLOW}Using default: $USER_EMAIL${NC}"
 fi
 
