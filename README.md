@@ -1,46 +1,22 @@
 # Claude Code + Langfuse: Session Observability Template
 
-Capture every Claude Code conversation — prompts, responses, tool calls, and session grouping — using Langfuse Cloud or a self-hosted instance.
+Capture every Claude Code conversation — prompts, responses, tool calls, and session grouping — using a self-hosted instance or Langfuse Cloud.
 
-This template provides a complete, production-ready setup for observing your Claude Code sessions using Langfuse. Choose between **Langfuse Cloud** (zero infrastructure) or **self-hosted** (everything runs locally in Docker), with automatic session tracking and incremental state management.
+This template provides a complete, production-ready setup for observing your Claude Code sessions using Langfuse. Choose between **self-hosted** (everything runs locally in Docker) or **Langfuse Cloud** (zero infrastructure), with automatic session tracking and incremental state management.
 
 **Read the full story:** [I Built My Own Observability for Claude Code](https://doneyli.substack.com/p/i-built-my-own-observability-for) — why I built this, how it works, and screenshots of the setup in action.
 
 ## Choose Your Setup
 
-| | Langfuse Cloud | Self-Hosted |
+| | Self-Hosted | Langfuse Cloud |
 |---|---|---|
-| **Infrastructure** | None (fully managed) | Docker on your machine |
-| **Prerequisites** | Python 3.11+ | Python 3.11+, Docker, 4-6GB RAM, 2-5GB disk |
-| **Setup time** | ~2 minutes | ~5 minutes |
-| **Data location** | Langfuse Cloud (EU or US) | Your machine only |
-| **Cost** | Free tier available | Free (self-hosted) |
+| **Infrastructure** | Docker on your machine | None (fully managed) |
+| **Prerequisites** | Python 3.11+, Docker, 4-6GB RAM, 2-5GB disk | Python 3.11+ |
+| **Setup time** | ~5 minutes | ~2 minutes |
+| **Data location** | Your machine only | Langfuse Cloud (EU or US) |
+| **Cost** | Free (self-hosted) | Free tier available |
 
-## Quick Start — Option A: Langfuse Cloud
-
-Use this if you have (or want to create) a [Langfuse Cloud](https://cloud.langfuse.com) account. No Docker required.
-
-**Prerequisites:** Python 3.11+, Claude Code CLI, a Langfuse Cloud account with API keys.
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/doneyli/claude-code-langfuse-template.git
-   cd claude-code-langfuse-template
-   ```
-
-2. **Install the hook (cloud mode)**
-   ```bash
-   ./scripts/install-hook.sh --cloud
-   ```
-   You'll be prompted for your public key, secret key, and region (EU/US/custom).
-
-3. **Verify the setup**
-   ```bash
-   ./scripts/validate-setup.sh --cloud --post
-   ```
-   Then start a Claude Code conversation — traces will appear in your Langfuse Cloud dashboard.
-
-## Quick Start — Option B: Self-Hosted
+## Quick Start — Option A: Self-Hosted
 
 Use this to run everything locally in Docker. No external accounts needed.
 
@@ -86,6 +62,30 @@ Use this to run everything locally in Docker. No external accounts needed.
    ```bash
    ./scripts/validate-setup.sh --post
    ```
+
+## Quick Start — Option B: Langfuse Cloud
+
+Use this if you have (or want to create) a [Langfuse Cloud](https://cloud.langfuse.com) account. No Docker required.
+
+**Prerequisites:** Python 3.11+, Claude Code CLI, a Langfuse Cloud account with API keys.
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/doneyli/claude-code-langfuse-template.git
+   cd claude-code-langfuse-template
+   ```
+
+2. **Install the hook (cloud mode)**
+   ```bash
+   ./scripts/install-hook.sh --cloud
+   ```
+   You'll be prompted for your public key, secret key, and region (EU/US/custom).
+
+3. **Verify the setup**
+   ```bash
+   ./scripts/validate-setup.sh --cloud --post
+   ```
+   Then start a Claude Code conversation — traces will appear in your Langfuse Cloud dashboard.
 
 ## Using with an Existing Langfuse Instance (BYOL)
 
