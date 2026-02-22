@@ -1,0 +1,20 @@
+{
+  "env": {
+    "TRACE_TO_LANGFUSE": "true",
+    "LANGFUSE_PUBLIC_KEY": "YOUR_PUBLIC_KEY_HERE",
+    "LANGFUSE_SECRET_KEY": "YOUR_SECRET_KEY_HERE",
+    "LANGFUSE_HOST": "https://cloud.langfuse.com"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --with 'langfuse>=3.0,<4.0' --python 3.12 ~/.claude/hooks/langfuse_hook.py"
+          }
+        ]
+      }
+    ]
+  }
+}

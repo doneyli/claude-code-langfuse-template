@@ -59,6 +59,72 @@ Follow these steps to get Langfuse observability running in under 5 minutes:
    ./scripts/validate-setup.sh --post
    ```
 
+## Using with an Existing Langfuse Instance (BYOL)
+
+If you already run Langfuse (self-hosted or Cloud), you can skip the Docker setup entirely and just install the hook. This uses [`uv`](https://docs.astral.sh/uv/) for isolated, zero-pollution dependency management.
+
+### Prerequisites
+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) installed
+- A running Langfuse instance with a project and API keys
+- Claude Code CLI
+
+### Setup
+
+1. **Clone the repository** (for the hook script only)
+   ```bash
+   git clone https://github.com/doneyli/claude-code-langfuse-template.git
+   cd claude-code-langfuse-template
+   ```
+
+2. **Copy the hook to your Claude config**
+   ```bash
+   mkdir -p ~/.claude/hooks
+   cp hooks/langfuse_hook.py ~/.claude/hooks/langfuse_hook.py
+   ```
+
+3. **Configure Claude Code settings**
+
+   Edit `~/.claude/settings.json` (create if it doesn't exist):
+   ```json
+   {
+     "env": {
+       "TRACE_TO_LANGFUSE": "true",
+       "LANGFUSE_PUBLIC_KEY": "pk-lf-...",
+       "LANGFUSE_SECRET_KEY": "sk-lf-...",
+       "LANGFUSE_HOST": "https://cloud.langfuse.com"
+     },
+     "hooks": {
+       "Stop": [
+         {
+           "hooks": [
+             {
+               "type": "command",
+               "command": "uv run --with 'langfuse>=3.0,<4.0' --python 3.12 ~/.claude/hooks/langfuse_hook.py"
+             }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+   See `settings-examples/global-settings-uv.json` for a complete example.
+
+4. **Verify** — Start a Claude Code conversation and check your Langfuse dashboard for traces.
+
+### How it works
+
+`uv run --with 'langfuse>=3.0,<4.0'` creates an isolated ephemeral virtual environment with the `langfuse` package, without touching your system Python. The first run downloads the dependency (~1-5s), subsequent runs resolve from cache (~50-150ms overhead).
+
+### Security note
+
+**Always pin the dependency version range.** The `--with 'langfuse>=3.0,<4.0'` flag ensures you stay within a known-good major version. Without pinning, `uv` resolves the latest version on every run, which could silently pull a compromised release.
+
+Do **not** use `uvx --from git+https://...` patterns — running code directly from a git remote without commit pinning introduces supply chain risk.
+
+---
+
 ## What Gets Captured
 
 | Item | Description |
