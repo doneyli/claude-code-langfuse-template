@@ -6,6 +6,8 @@ This template provides a complete, production-ready setup for observing your Cla
 
 **Read the full story:** [I Built My Own Observability for Claude Code](https://doneyli.substack.com/p/i-built-my-own-observability-for) — why I built this, how it works, and screenshots of the setup in action.
 
+> **Want more AI implementation patterns like this?** Subscribe to [Signal over Noise](https://doneyli.substack.com/) — weekly frameworks for building production AI systems, from someone who's done it at Deutsche Bank, Snowflake, and ClickHouse.
+
 ## Choose Your Setup
 
 | | Self-Hosted | Langfuse Cloud |
@@ -581,6 +583,21 @@ Contributions are welcome! Please:
 3. Make your changes
 4. Test thoroughly (especially the hook script)
 5. Submit a pull request
+
+## Next Steps
+
+Built something with this template? Here's how to go deeper:
+
+- **[Subscribe to Signal over Noise](https://doneyli.substack.com/)** — Weekly "I Built X" tutorials, AI architecture patterns, and implementation frameworks
+- **[Take the AI Readiness Quiz](https://doneyli.substack.com/)** — 5 questions, 2 minutes. See where your team stands on AI implementation readiness *(coming soon)*
+- **[Read the full tutorial](https://doneyli.substack.com/p/i-built-my-own-observability-for)** — The complete walkthrough that inspired this template (18K+ views)
+
+## About the Author
+
+**Don De Jesus** — Principal AI Architect at ClickHouse. 20+ years building data and AI systems at Deutsche Bank, Verizon, Cloudera, Elastic, and Snowflake. I write about what actually works in production AI, not what sounds good in demos.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/doneyli/)
+[![Substack](https://img.shields.io/badge/Substack-Subscribe-orange)](https://doneyli.substack.com/)
 
 ## License
 
