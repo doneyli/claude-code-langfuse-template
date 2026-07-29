@@ -594,7 +594,7 @@ Built something with this template? Here's how to go deeper:
 
 ## About the Author
 
-**Don De Jesus** — Principal AI Architect at ClickHouse. 20+ years building data and AI systems at Deutsche Bank, Verizon, Cloudera, Elastic, and Snowflake. I write about what actually works in production AI, not what sounds good in demos.
+**Doneyli De Jesus** — Principal AI Architect at ClickHouse. 20+ years building data and AI systems at Deutsche Bank, Verizon, Cloudera, Elastic, and Snowflake. I write about what actually works in production AI, not what sounds good in demos.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/doneyli/)
 [![Substack](https://img.shields.io/badge/Substack-Subscribe-orange)](https://doneyli.substack.com/)
